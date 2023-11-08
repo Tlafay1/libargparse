@@ -11,7 +11,7 @@
 	<img alt="Number of lines of code" src="https://img.shields.io/tokei/lines/github/Tlafay1/libargparse?color=blueviolet" />
 	<img alt="Code language count" src="https://img.shields.io/github/languages/count/Tlafay1/libargparse?color=blue" />
 	<img alt="GitHub top language" src="https://img.shields.io/github/languages/top/Tlafay1/libargparse?color=blue" />
-	<img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/Tlafay1/?color=brightgreen" />
+	<img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/Tlafay1/libargparse?color=brightgreen" />
 </p>
 
 ---
