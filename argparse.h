@@ -34,7 +34,6 @@ typedef struct s_arg_option
 	char		*lflag;
 	char		*name;
 	char		*help;
-	char		*type;
 	e_argnum 	argnum;
 }	t_argo;
 
