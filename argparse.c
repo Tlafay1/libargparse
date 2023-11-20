@@ -124,9 +124,22 @@ static int _parse_short_option(char ***args, t_list **head)
 
 static int _parse_long_option(char ***args, t_list **head)
 {
-	(void)head;
-	(void)args;
-	// char *arg = _g_progname + 2;
+	t_argo	*option;
+	t_argr	*ret;
+
+	char *arg = (*args)[0] + 2;
+	(*args)++;
+
+	ret = (t_argr *) malloc(sizeof(t_argr));
+	option = _search_option(0, arg);
+
+	if (!option)
+		return (_unrecognized_option(0, arg));
+	if (_get_option_arguments(args, option, &(ret->values), LFLAG))
+		return (1);
+	ret->option = option;
+	ft_lstadd_back(head, ft_lstnew(ret));
+
 	return (0);
 }
 
@@ -135,6 +148,46 @@ static int _parse_option(char ***args, t_list **head)
 	if (*(args[0][0] + 1) == '-')
 		return _parse_long_option(args, head);
 	return _parse_short_option(args, head);
+}
+
+t_argr *get_next_arg(t_list *head)
+{
+	static t_list *current = NULL;
+
+	if (!current)
+		current = head;
+	
+	while (current && ((t_argr *)current->content)->option)
+		current = current->next;
+	return (current->content);
+}
+
+t_argr	*get_next_option(t_list *head)
+{
+	static t_list *current = NULL;
+
+	if (!current)
+		current = head;
+	
+	while (current && !((t_argr *)current->content)->option)
+		current = current->next;
+	return (current->content);
+}
+
+void	free_args(t_list *head)
+{
+	t_list	*tmp;
+	t_argr	*argr;
+
+	while (head)
+	{
+		tmp = head->next;
+		argr = head->content;
+		free(argr->values);
+		free(argr);
+		free(head);
+		head = tmp;
+	}
 }
 
 void	help_args(t_argp *argp, const char *prog_name)
@@ -157,8 +210,8 @@ t_list	*parse_args(t_argp *argp, int argc, char const *argv[])
 {
 	t_list	*head;
 	t_argr	*ret;
-	char	**args;
 
+	(void)argc;
 	_g_argo = argp->options;
 	_g_progname = (char *) argv[0];
 	head = NULL;
@@ -172,26 +225,30 @@ t_list	*parse_args(t_argp *argp, int argc, char const *argv[])
 		}
 		else
 		{
-			// segfault here
+			ret = (t_argr *) malloc(sizeof(t_argr));
 			ret->option = NULL;
 			char **tmp = (char **)malloc(2 * sizeof(char *));
 			tmp[0] = (char *) *argv;
 			tmp[1] = NULL;
+			ret->values = tmp;
 			ft_lstadd_back(&head, ft_lstnew(ret));
 			argv++;
 		}
-		// else
 	}
 
-	t_list *tmp = head;
-	while (tmp)
-	{
-		t_argr *test = tmp->content;
-		printf("sflag: %c, lflag: %s, name: %s\n", test->option->sflag,
-			test->option->lflag, test->option->name);
-		for (int i = 0; test->values[i]; i++)
-			printf("%s\n", test->values[i]);
-		tmp = tmp->next;
-	}
+	// t_list *tmp = head;
+	// while (tmp)
+	// {
+	// 	t_argr *test = tmp->content;
+	// 	if (test->option)
+	// 	{
+	// 		printf("sflag: %c, lflag: %s, name: %s\n", test->option->sflag,
+	// 			test->option->lflag, test->option->name);
+	// 	}
+	// 	for (int i = 0; test->values[i]; i++)
+	// 		printf("%s\n", test->values[i]);
+	// 	tmp = tmp->next;
+	// }
+
 	return (head);
 }

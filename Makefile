@@ -2,7 +2,7 @@ CC = gcc
 
 NAME = libargparse.a
 
-CFLAGS = -g # -Wall -Werror -Wextra
+CFLAGS = -Wall -Werror -Wextra -g
 
 SRCS = argparse.c
 
