@@ -12,57 +12,7 @@
 
 #include "argparse.h"
 
-t_argr	*get_next_arg(t_list *head)
-{
-	static t_list *current = NULL;
-	static int end = 0;
-
-	if (end || !head)
-		return (NULL);
-
-	if (!current)
-		current = head;
-	
-	while (current && ((t_argr *)current->content)->option)
-		current = current->next;
-	if (!current)
-	{
-		end = 1;
-		return (NULL);
-	}
-	t_argr *ret = current->content;
-	current = current->next;
-	if (!current)
-		end = 1;
-	return (ret);
-}
-
-t_argr	*get_next_option(t_list *head)
-{
-	static t_list *current = NULL;
-	static int end = 0;
-
-	if (end || !head)
-		return (NULL);
-
-	if (!current)
-		current = head;
-	
-	while (current && !((t_argr *)current->content)->option)
-		current = current->next;
-	if (!current)
-	{
-		end = 1;
-		return (NULL);
-	}
-	t_argr *ret = current->content;
-	current = current->next;
-	if (!current)
-		end = 1;
-	return (ret);
-}
-
-void	free_args(t_list *head)
+static void	free_args(t_list *head)
 {
 	t_list	*tmp;
 	t_argr	*argr;
@@ -208,6 +158,56 @@ static int _parse_option(char ***args, t_list **head, t_argo *options, const cha
 	if (*(args[0][0] + 1) == '-')
 		return _parse_long_option(args, head, options, progname);
 	return _parse_short_option(args, head, options, progname);
+}
+
+t_argr	*get_next_arg(t_list *head)
+{
+	static t_list *current = NULL;
+	static int end = 0;
+
+	if (end || !head)
+		return (NULL);
+
+	if (!current)
+		current = head;
+	
+	while (current && ((t_argr *)current->content)->option)
+		current = current->next;
+	if (!current)
+	{
+		end = 1;
+		return (NULL);
+	}
+	t_argr *ret = current->content;
+	current = current->next;
+	if (!current)
+		end = 1;
+	return (ret);
+}
+
+t_argr	*get_next_option(t_list *head)
+{
+	static t_list *current = NULL;
+	static int end = 0;
+
+	if (end || !head)
+		return (NULL);
+
+	if (!current)
+		current = head;
+	
+	while (current && !((t_argr *)current->content)->option)
+		current = current->next;
+	if (!current)
+	{
+		end = 1;
+		return (NULL);
+	}
+	t_argr *ret = current->content;
+	current = current->next;
+	if (!current)
+		end = 1;
+	return (ret);
 }
 
 void	help_args(t_argp *argp, const char *prog_name)
