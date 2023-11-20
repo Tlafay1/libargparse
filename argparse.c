@@ -12,7 +12,7 @@
 
 #include "argparse.h"
 
-static void	free_args(t_list *head)
+static void	_free_args(t_list *head)
 {
 	t_list	*tmp;
 	t_argr	*argr;
