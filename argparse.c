@@ -150,6 +150,32 @@ static int _parse_option(char ***args, t_list **head, t_argo *options, const cha
 	return _parse_short_option(args, head, options, progname, argp);
 }
 
+int options_count(t_list *head)
+{
+	int count = 0;
+
+	while (head)
+	{
+		if (((t_argr *)head->content)->option)
+			count++;
+		head = head->next;
+	}
+	return (count);
+}
+
+int args_count(t_list *head)
+{
+	int count = 0;
+
+	while (head)
+	{
+		if (!((t_argr *)head->content)->option)
+			count++;
+		head = head->next;
+	}
+	return (count);
+}
+
 t_argr *get_next_arg(t_list *head)
 {
 	static t_list *current = NULL;
@@ -244,7 +270,7 @@ t_list *parse_args(t_argp *argp, int argc, char const *argv[])
 	argv++;
 	for (; *argv;)
 	{
-		if ((*argv)[0] == '-')
+		if ((*argv)[0] == '-' && (*argv)[1])
 		{
 			if (_parse_option((char ***)&argv, &head, options, progname, argp))
 				return (NULL);

@@ -26,34 +26,36 @@ typedef enum e_argnum
 	NO_ARG,
 	ONE_ARG,
 	INF_ARG
-} e_argnum;
+}	e_argnum;
 
 typedef struct s_arg_option
 {
-	char sflag;
-	char *lflag;
-	char *name;
-	char *help;
+	char	sflag;
+	char	*lflag;
+	char	*name;
+	char	*help;
 	e_argnum argnum;
-} t_argo;
+}	t_argo;
 
 typedef struct s_arg_return
 {
-	char **values;
-	t_argo *option;
-} t_argr;
+	char	**values;
+	t_argo	*option;
+}	t_argr;
 
 typedef struct s_argp_parse
 {
-	t_argo *options;
-	char *args_doc;
-	char *doc;
-} t_argp;
+	t_argo	*options;
+	char	*args_doc;
+	char	*doc;
+}	t_argp;
 
-t_list *parse_args(t_argp *argp, int argc, char const *argv[]);
-void help_args(t_argp *argp, const char *prog_name);
-t_argr *get_next_arg(t_list *head);
-t_argr *get_next_option(t_list *head);
-void free_args(t_list *head);
+t_list	*parse_args(t_argp *argp, int argc, char const *argv[]);
+void	help_args(t_argp *argp, const char *prog_name);
+t_argr	*get_next_arg(t_list *head);
+t_argr	*get_next_option(t_list *head);
+void	free_args(t_list *head);
+int		options_count(t_list *head);
+int		args_count(t_list *head);
 
 #endif
