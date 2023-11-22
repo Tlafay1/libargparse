@@ -12,8 +12,14 @@
 
 #include "argparse.h"
 
-static int _unrecognized_option(char sflag, char *lflag, const char *progname)
+static int _unrecognized_option(char sflag, char *lflag, const char *progname, t_argp *argp)
 {
+	if (sflag == 'h' || (lflag && !ft_strncmp(lflag, "help", ft_strlen(lflag))))
+	{
+		help_args(argp, progname);
+		return (1);
+	}
+	
 	if (sflag)
 		printf("%s: invalid option -- '%c'\n", progname, sflag);
 	else
@@ -92,7 +98,7 @@ static int _get_option_arguments(char ***args, t_argo *option,
 	return (0);
 }
 
-static int _parse_short_option(char ***args, t_list **head, t_argo *options, const char *progname)
+static int _parse_short_option(char ***args, t_list **head, t_argo *options, const char *progname, t_argp *argp)
 {
 	t_argo *option;
 	t_argr *ret;
@@ -106,7 +112,7 @@ static int _parse_short_option(char ***args, t_list **head, t_argo *options, con
 		option = _search_option(*arg, NULL, options);
 
 		if (!option)
-			return (_unrecognized_option(*arg, NULL, progname));
+			return (_unrecognized_option(*arg, NULL, progname, argp));
 		if (_get_option_arguments(args, option, &(ret->values), SFLAG, progname))
 			return (1);
 		ret->option = option;
@@ -116,7 +122,7 @@ static int _parse_short_option(char ***args, t_list **head, t_argo *options, con
 	return (0);
 }
 
-static int _parse_long_option(char ***args, t_list **head, t_argo *options, const char *progname)
+static int _parse_long_option(char ***args, t_list **head, t_argo *options, const char *progname, t_argp *argp)
 {
 	t_argo *option;
 	t_argr *ret;
@@ -128,7 +134,7 @@ static int _parse_long_option(char ***args, t_list **head, t_argo *options, cons
 	option = _search_option(0, arg, options);
 
 	if (!option)
-		return (_unrecognized_option(0, arg, progname));
+		return (_unrecognized_option(0, arg, progname, argp));
 	if (_get_option_arguments(args, option, &(ret->values), LFLAG, progname))
 		return (1);
 	ret->option = option;
@@ -137,11 +143,11 @@ static int _parse_long_option(char ***args, t_list **head, t_argo *options, cons
 	return (0);
 }
 
-static int _parse_option(char ***args, t_list **head, t_argo *options, const char *progname)
+static int _parse_option(char ***args, t_list **head, t_argo *options, const char *progname, t_argp *argp)
 {
 	if (*(args[0][0] + 1) == '-')
-		return _parse_long_option(args, head, options, progname);
-	return _parse_short_option(args, head, options, progname);
+		return _parse_long_option(args, head, options, progname, argp);
+	return _parse_short_option(args, head, options, progname, argp);
 }
 
 t_argr *get_next_arg(t_list *head)
@@ -240,7 +246,7 @@ t_list *parse_args(t_argp *argp, int argc, char const *argv[])
 	{
 		if ((*argv)[0] == '-')
 		{
-			if (_parse_option((char ***)&argv, &head, options, progname))
+			if (_parse_option((char ***)&argv, &head, options, progname, argp))
 				return (NULL);
 		}
 		else
