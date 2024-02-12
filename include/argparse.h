@@ -30,24 +30,24 @@ typedef enum e_argnum
 
 typedef struct s_arg_option
 {
-	char	sflag;
-	char	*lflag;
-	char	*name;
-	char	*help;
+	const char	sflag;
+	const char	*lflag;
+	const char	*name;
+	const char	*help;
 	e_argnum argnum;
 }	t_argo;
 
 typedef struct s_arg_return
 {
-	char	**values;
+	const char	**values;
 	t_argo	*option;
 }	t_argr;
 
 typedef struct s_argp_parse
 {
 	t_argo	*options;
-	char	*args_doc;
-	char	*doc;
+	const char	*args_doc;
+	const char	*doc;
 }	t_argp;
 
 t_list	*parse_args(t_argp *argp, int argc, char const *argv[]);
