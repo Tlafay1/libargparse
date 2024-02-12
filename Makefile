@@ -1,30 +1,49 @@
-CC = gcc
+CC := clang
 
-NAME = libargparse.a
+LIB := lib/libargparse.a
 
-CFLAGS = -Wall -Werror -Wextra -g
+CFLAGS := -Wall -Werror -Wextra
 
-SRCS = argparse.c
+SRCS := argparse.c
 
-INCLUDES = argparse.h
+TESTS := main.cpp
 
-OBJS = ${SRCS:.c=.o}
+TESTS := $(addprefix tests/, ${TESTS})
 
-RM  = rm -f 
+INCLUDE := include/argparse.h
 
-all : $(NAME)
+LIBFT_PATH := ../libft
 
-$(NAME) : $(OBJS) $(SRCS)
-	@ar -rcs $(NAME) $(OBJS)
+OBJS := $(addprefix obj/, ${SRCS:.c=.o})
 
-%.o : %.c $(INCLUDES)
-	@$(CC) -c -I ../libft $< $(CFLAGS)
+RM  = rm -f
+
+all : $(LIB)
+
+$(LIB) : $(OBJS) $(INCLUDE)
+	@ar -rcs $@ $^
+
+obj/%.o : src/%.c $(INCLUDE)
+	@$(CC) -c -o $@ -I $(LIBFT_PATH) -I./include $< $(CFLAGS)
+
+test: $(LIB)
+	@$(CC) $(CFLAGS) \
+		-Llib \
+		-I./include \
+		-pthread \
+		-o tests/test \
+		$(TESTS) \
+		-largparse \
+		-lgtest \
+		-lft
+	@./tests/test
+	@$(RM) tests/test
 
 clean :
 	@$(RM) $(OBJS)
 
 fclean : clean
-	@$(RM) $(NAME)
+	@$(RM) $(LIB)
 
 re : fclean all
 

@@ -40,6 +40,16 @@ static t_argo *_search_option(char sflag, char *lflag, t_argo *options)
 	return (NULL);
 }
 
+static t_argo *_search_option_by_name(char *name, t_argo *options)
+{
+	for (t_argo *option = options; option->sflag || option->lflag; option++)
+	{
+		if (!ft_strncmp(name, option->name, ft_strlen(name)))
+			return (option);
+	}
+	return (NULL);
+}
+
 static int _wrong_arguments_number(t_argo *option, int flagtype, const char *progname)
 {
 	char *message;
@@ -253,9 +263,16 @@ void help_args(t_argp *argp, const char *prog_name)
 		printf("%s\n", argp->doc);
 
 	for (; options->sflag || options->lflag; options++)
-		printf("  -%c, --%-17s%s\n", options->sflag, options->lflag, options->help);
-
-	printf("  -%c, --%-17s%s\n", 'h', "help", "display this help and exit");
+	{
+		char *sflag = options->sflag ? ft_strjoin("-", (char[]){options->sflag, 0}) : "";
+		char *lflag = options->lflag ? ft_strjoin("--", options->lflag) : "";
+		if (options->lflag)
+			printf("  %s, %-19s%s\n", sflag, lflag, options->help);
+		else
+			printf("  %s  %-13s%s\n", sflag, lflag, options->help);
+	}
+	if (_search_option_by_name("help", argp->options) == NULL)
+		printf("  -%c, --%-17s%s\n", 'h', "help", "display this help and exit");
 }
 
 t_list *parse_args(t_argp *argp, int argc, char const *argv[])
