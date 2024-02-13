@@ -270,6 +270,10 @@ void help_args(t_argp *argp, const char *prog_name)
 			printf("  %s, %-19s%s\n", sflag, lflag, options->help);
 		else
 			printf("  %s  %-13s%s\n", sflag, lflag, options->help);
+		if (options->sflag)
+			free(sflag);
+		if (options->lflag)
+			free(lflag);
 	}
 	if (_search_option_by_name("help", argp->options) == NULL)
 		printf("  -%c, --%-17s%s\n", 'h', "help", "display this help and exit");
