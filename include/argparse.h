@@ -39,7 +39,7 @@ typedef struct s_arg_option
 
 typedef struct s_arg_return
 {
-	const char	**values;
+	char	**values;
 	t_argo	*option;
 }	t_argr;
 

@@ -19,7 +19,7 @@ static int _unrecognized_option(char sflag, char *lflag, const char *progname, t
 		help_args(argp, progname);
 		return (1);
 	}
-	
+
 	if (sflag)
 		printf("%s: invalid option -- '%c'\n", progname, sflag);
 	else
