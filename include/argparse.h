@@ -26,36 +26,36 @@ typedef enum e_argnum
 	NO_ARG,
 	ONE_ARG,
 	INF_ARG
-}	e_argnum;
+} e_argnum;
 
 typedef struct s_arg_option
 {
-	const char	sflag;
-	const char	*lflag;
-	const char	*name;
-	const char	*help;
+	const char sflag;
+	const char *lflag;
+	const char *name;
+	const char *help;
 	e_argnum argnum;
-}	t_argo;
+} t_argo;
 
 typedef struct s_arg_return
 {
-	char	**values;
-	t_argo	*option;
-}	t_argr;
+	char **values;
+	t_argo *option;
+} t_argr;
 
 typedef struct s_argp_parse
 {
-	t_argo	*options;
-	const char	*args_doc;
-	const char	*doc;
-}	t_argp;
+	t_argo *options;
+	const char *args_doc;
+	const char *doc;
+} t_argp;
 
-t_list	*parse_args(t_argp *argp, int argc, char const *argv[]);
-void	help_args(t_argp *argp, const char *prog_name);
-t_argr	*get_next_arg(t_list *head);
-t_argr	*get_next_option(t_list *head);
-void	free_args(t_list *head);
-int		options_count(t_list *head);
-int		args_count(t_list *head);
+int parse_args(t_argp *argp, const char *argv[], t_list **head);
+void help_args(t_argp *argp, const char *prog_name);
+t_argr *get_next_arg(t_list *head);
+t_argr *get_next_option(t_list *head);
+void free_args(t_list *head);
+int options_count(t_list *head);
+int args_count(t_list *head);
 
 #endif
