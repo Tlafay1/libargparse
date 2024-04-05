@@ -1,10 +1,10 @@
-CC := clang
+CC := gcc
 
 CC_TEST := g++
 
 LIB := lib/libargparse.a
 
-CFLAGS := -g
+CFLAGS := -Wall -Werror -Wextra
 
 SRCS := argparse.c
 
