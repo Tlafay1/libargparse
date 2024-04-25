@@ -26,6 +26,7 @@ jobs:
         DEFAULT_BUMP: patch
   release:
     runs-on: ubuntu-latest
+    needs: tag
     permissions:
       contents: write
     steps:
