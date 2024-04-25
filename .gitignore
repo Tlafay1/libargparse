@@ -15,7 +15,15 @@ missing
 depcomp
 compile
 ar-lib
+test-driver
 config.guess
 config.sub
 ltmain.sh
 *.tar.gz
+libargparse-*/
+libargparse-*.tar.gz
+tests/*
+!tests/Makefile.am
+!tests/*.cpp
+!tests/*.h
+!tests/*.hpp
