@@ -18,7 +18,7 @@ jobs:
     - name: Install dependencies
       run: autoreconf --install
     - name: configure
-      run: ./configure
+      run: ./configure --with-libft-path=./libft
     - name: make
       run: make
     - name: make check
