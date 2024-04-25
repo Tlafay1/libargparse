@@ -69,7 +69,7 @@ int main(int argc, char const *argv[])
 	t_argr *argr;
 
 	// Loop through the options (e.g ./program -abc --option).
-	while ((argr = get_next_option(head)))
+	while ((argr = get_next_option(&head)))
 	{
 		// Be careful, the option can be NULL.
 		if (argr->option)
@@ -84,7 +84,7 @@ int main(int argc, char const *argv[])
 	}
 
 	// Loop through the arguments (e.g ./program arg1 arg2 arg3).
-	while ((argr = get_next_arg(head)))
+	while ((argr = get_next_arg(&head)))
 	{
 		// Be careful, the option can be NULL.
 		if (argr->option)
@@ -120,7 +120,3 @@ bonjour
 au
 revoir
 ```
-
----
-
-:)
