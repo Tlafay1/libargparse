@@ -14,7 +14,7 @@ TESTS := $(addprefix tests/, ${TESTS})
 
 INCLUDE := include/argparse.h
 
-LIBFT_PATH := ../libft
+LIBFT_PATH := ./libft
 
 OBJS := $(addprefix obj/, ${SRCS:.c=.o})
 

@@ -232,29 +232,22 @@ void free_args(t_list *head)
  * @param head The structure containing the parsed arguments and options
  * @return The structure containing the args and options
  */
-t_argr *get_next_arg(t_list *head)
+t_argr *get_next_arg(t_list **head)
 {
-	static t_list *current = NULL;
-	static int end = 0;
+	if (!(*head))
+		return NULL;
 
-	if (end || !head)
-		return (NULL);
-
-	if (!current)
-		current = head;
+	t_list *current = *head;
+	*head = (*head)->next;
 
 	while (current && ((t_argr *)current->content)->option)
 		current = current->next;
+
 	if (!current)
-	{
-		end = 1;
-		return (NULL);
-	}
+		return NULL;
+
 	t_argr *ret = current->content;
-	current = current->next;
-	if (!current)
-		end = 1;
-	return (ret);
+	return ret;
 }
 
 /**
@@ -265,28 +258,14 @@ t_argr *get_next_arg(t_list *head)
  * @param head The structure containing the parsed arguments and options
  * @return The structure containing the args and options
  */
-t_argr *get_next_option(t_list *head)
+t_argr *get_next_option(t_list **head)
 {
-	static t_list *current = NULL;
-	static int end = 0;
-
-	if (end || !head)
+	while ((*head) && !((t_argr *)(*head)->content)->option)
+		(*head) = (*head)->next;
+	if (!(*head))
 		return (NULL);
-
-	if (!current)
-		current = head;
-
-	while (current && !((t_argr *)current->content)->option)
-		current = current->next;
-	if (!current)
-	{
-		end = 1;
-		return (NULL);
-	}
-	t_argr *ret = current->content;
-	current = current->next;
-	if (!current)
-		end = 1;
+	t_argr *ret = (*head)->content;
+	(*head) = (*head)->next;
 	return (ret);
 }
 
