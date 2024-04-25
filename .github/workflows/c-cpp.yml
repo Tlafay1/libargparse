@@ -15,7 +15,7 @@ jobs:
         submodules: recursive
     - uses: Bacondish2023/setup-googletest@v1.0.1
     - name: Install dependencies
-      run: autoreconf --install
+      run: VERSION=${GITHUB_REF_NAME#v} autoreconf --install
     - name: configure
       run: ./configure
     - name: make
