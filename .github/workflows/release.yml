@@ -2,12 +2,29 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+    branches: [ "main" ]
 
 jobs:
-  build:
+  tag:
+    name: Tag version
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: '0'
 
+    - name: Bump version and push tag
+      id: tag
+      uses: anothrNick/github-tag-action@1.67.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        WITH_V: true
+        DEFAULT_BUMP: patch
+  release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
