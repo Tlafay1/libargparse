@@ -2,7 +2,7 @@ name: C/C++ CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "5-change-behavior-to-not-use-static-variable" ]
   pull_request:
     branches: [ "main" ]
 
