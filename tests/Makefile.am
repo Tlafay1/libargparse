@@ -8,9 +8,6 @@ CLEANFILES = test
 check: libft all
 	./test
 
-clean-local:
-	$(MAKE) -C $(top_srcdir)/$(LIBFT_PATH) fclean
-
 .PHONY: libft
 libft:
 	$(MAKE) -C $(top_srcdir)/$(LIBFT_PATH)
