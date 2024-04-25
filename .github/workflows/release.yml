@@ -35,7 +35,9 @@ jobs:
         submodules: recursive
     - uses: Bacondish2023/setup-googletest@v1.0.1
     - name: Install dependencies
-      run: autoreconf --install
+      run: |
+        TAG=${{ needs.tag.outputs.tag }}
+        VERSION=${TAG#v} autoreconf --install
     - name: Configure
       run: ./configure
     - name: make
