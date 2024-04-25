@@ -1,6 +1,6 @@
 AC_PREREQ([2.69])
 
-AC_INIT([libargparse], [0.0.1], [tlafay@student.42lyon.fr])
+AC_INIT([libargparse], m4_esyscmd([git describe --abbrev=0 --tags]), [tlafay@student.42lyon.fr])
 
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
 
@@ -9,10 +9,6 @@ AC_PROG_CXX
 AM_PROG_AR
 
 AC_CHECK_LIB([gtest], [main])
-# AC_CHECK_LIB([ft], [main])
-
-# AC_CHECK_HEADER([include/argparse.h])
-# AC_CHECK_HEADER([include/tests.hpp])
 
 AC_SUBST([LIBFT_PATH], ["./libft"])
 
