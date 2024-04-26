@@ -169,18 +169,18 @@ static int _parse_option(char ***args, t_list **head, t_argo *options, const cha
 /**
  * @brief Get the number of command line options.
  *
- * @param head The list containing the parsed arguments and options.
+ * @param options_list The list containing the parsed options.
  * @return The number of command line options.
  */
-int options_count(t_list *head)
+int options_count(t_list *options_list)
 {
 	int count = 0;
 
-	while (head)
+	while (options_list)
 	{
-		if (((t_argr *)head->content)->option)
+		if (((t_argr *)options_list->content)->option)
 			count++;
-		head = head->next;
+		options_list = options_list->next;
 	}
 	return (count);
 }
@@ -188,18 +188,18 @@ int options_count(t_list *head)
 /**
  * @brief Get the number of command line arguments.
  *
- * @param head The list containing the parsed arguments and options.
+ * @param args_list The list containing the parsed arguments.
  * @return The number of command line arguments.
  */
-int args_count(t_list *head)
+int args_count(t_list *args_list)
 {
 	int count = 0;
 
-	while (head)
+	while (args_list)
 	{
-		if (!((t_argr *)head->content)->option)
+		if (!((t_argr *)args_list->content)->option)
 			count++;
-		head = head->next;
+		args_list = args_list->next;
 	}
 	return (count);
 }
@@ -226,28 +226,21 @@ void free_args(t_list *head)
 }
 
 /**
- * @brief Get the next option from the command line.
+ * @brief Get the next argument from the command line.
  * For example, if the options are `./program foo --test bar`,
  * the first call will return foo and the second bar.
- * @param head The structure containing the parsed arguments and options
+ * @param args_list The structure containing the parsed arguments
  * @return The structure containing the args and options
  */
-t_argr *get_next_arg(t_list **head)
+t_argr *get_next_arg(t_list **args_list)
 {
-	if (!(*head))
-		return NULL;
-
-	t_list *current = *head;
-	*head = (*head)->next;
-
-	while (current && ((t_argr *)current->content)->option)
-		current = current->next;
-
-	if (!current)
-		return NULL;
-
-	t_argr *ret = current->content;
-	return ret;
+	while ((*args_list) && ((t_argr *)(*args_list)->content)->option)
+		(*args_list) = (*args_list)->next;
+	if (!(*args_list))
+		return (NULL);
+	t_argr *ret = (*args_list)->content;
+	(*args_list) = (*args_list)->next;
+	return (ret);
 }
 
 /**
@@ -255,17 +248,17 @@ t_argr *get_next_arg(t_list **head)
  * For example, if the options are `./program --foo test --bar`,
  * the first call will return --foo and the second --bar.
  *
- * @param head The structure containing the parsed arguments and options
+ * @param options_list The structure containing the parsed options
  * @return The structure containing the args and options
  */
-t_argr *get_next_option(t_list **head)
+t_argr *get_next_option(t_list **options_list)
 {
-	while ((*head) && !((t_argr *)(*head)->content)->option)
-		(*head) = (*head)->next;
-	if (!(*head))
+	while ((*options_list) && !((t_argr *)(*options_list)->content)->option)
+		(*options_list) = (*options_list)->next;
+	if (!(*options_list))
 		return (NULL);
-	t_argr *ret = (*head)->content;
-	(*head) = (*head)->next;
+	t_argr *ret = (*options_list)->content;
+	(*options_list) = (*options_list)->next;
 	return (ret);
 }
 
@@ -307,23 +300,24 @@ void help_args(t_argp *argp, const char *prog_name)
  *
  * @param argp The options expected to be passed to the program.
  * @param argv The raw argv passed inside the main().
- * @param head The structure pointer to store the args and options. To be used in helper functions.
+ * @param args_list The structure pointer to store the args. To be used in helper functions.
+ * @param options_list The structure pointer to store the options. To be used in helper functions.
  * @return Error code, 0 if everything went fine, other for error.
  * 	It's recommended to exit the program in the case an error occured.
  */
-int parse_args(t_argp *argp, const char *argv[], t_list **head)
+int parse_args(t_argp *argp, const char *argv[], t_list **args_list, t_list **options_list)
 {
 	t_argr *ret;
 
 	t_argo *options = argp->options;
 	const char *progname = argv[0];
-	*head = NULL;
+	*args_list = NULL;
 	argv++;
 	for (; *argv;)
 	{
 		if ((*argv)[0] == '-' && (*argv)[1])
 		{
-			if (_parse_option((char ***)&argv, head, options, progname, argp))
+			if (_parse_option((char ***)&argv, args_list, options, progname, argp))
 				return (1);
 		}
 		else
@@ -334,9 +328,10 @@ int parse_args(t_argp *argp, const char *argv[], t_list **head)
 			tmp[0] = (char *)*argv;
 			tmp[1] = NULL;
 			ret->values = tmp;
-			ft_lstadd_back(head, ft_lstnew(ret));
+			ft_lstadd_back(args_list, ft_lstnew(ret));
 			argv++;
 		}
 	}
+	*options_list = *args_list;
 	return (0);
 }

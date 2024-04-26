@@ -64,12 +64,15 @@ static t_argp argp = {
 
 int main(int argc, char const *argv[])
 {
-	// Parse the arguments and store them in a linked list.
-	t_list *head = parse_args(&argp, argc, argv);
+	t_list *args_list = NULL;
+    t_list *options_list = NULL;
+
+	// Parse the arguments and store them in linked lists.
+	parse_args(&argp, argv, &args_list, &options_list);
 	t_argr *argr;
 
 	// Loop through the options (e.g ./program -abc --option).
-	while ((argr = get_next_option(&head)))
+	while ((argr = get_next_option(&options_list)))
 	{
 		// Be careful, the option can be NULL.
 		if (argr->option)
@@ -84,7 +87,7 @@ int main(int argc, char const *argv[])
 	}
 
 	// Loop through the arguments (e.g ./program arg1 arg2 arg3).
-	while ((argr = get_next_arg(&head)))
+	while ((argr = get_next_arg(&args_list)))
 	{
 		// Be careful, the option can be NULL.
 		if (argr->option)
@@ -98,8 +101,9 @@ int main(int argc, char const *argv[])
 				printf("%s\n", argr->values[i]);
 	}
 
-	// IMPORTANT: don't forget to free the linked list !
-	free_args(head);
+	// IMPORTANT: don't forget to free the lists !
+	free_args(args_list);
+	free_args(options_list)
 
 	return 0;
 }

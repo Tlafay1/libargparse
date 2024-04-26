@@ -28,3 +28,4 @@ tests/*
 !tests/*.cpp
 !tests/*.h
 !tests/*.hpp
+.vscode
