@@ -52,8 +52,8 @@ typedef struct s_argp_parse
 
 int parse_args(t_argp *argp, const char *argv[], t_list **args_list, t_list **options_list);
 void help_args(t_argp *argp, const char *prog_name);
-t_argr *get_next_arg(t_list **head);
-t_argr *get_next_option(t_list **head);
+t_argr *get_next_arg(t_list **args_list);
+t_argr *get_next_option(t_list **options_list);
 void free_args(t_list *head);
 int options_count(t_list *head);
 int args_count(t_list *head);

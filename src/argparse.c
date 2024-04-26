@@ -169,18 +169,18 @@ static int _parse_option(char ***args, t_list **head, t_argo *options, const cha
 /**
  * @brief Get the number of command line options.
  *
- * @param head The list containing the parsed arguments and options.
+ * @param options_list The list containing the parsed options.
  * @return The number of command line options.
  */
-int options_count(t_list *head)
+int options_count(t_list *options_list)
 {
 	int count = 0;
 
-	while (head)
+	while (options_list)
 	{
-		if (((t_argr *)head->content)->option)
+		if (((t_argr *)options_list->content)->option)
 			count++;
-		head = head->next;
+		options_list = options_list->next;
 	}
 	return (count);
 }
@@ -188,18 +188,18 @@ int options_count(t_list *head)
 /**
  * @brief Get the number of command line arguments.
  *
- * @param head The list containing the parsed arguments and options.
+ * @param args_list The list containing the parsed arguments.
  * @return The number of command line arguments.
  */
-int args_count(t_list *head)
+int args_count(t_list *args_list)
 {
 	int count = 0;
 
-	while (head)
+	while (args_list)
 	{
-		if (!((t_argr *)head->content)->option)
+		if (!((t_argr *)args_list->content)->option)
 			count++;
-		head = head->next;
+		args_list = args_list->next;
 	}
 	return (count);
 }

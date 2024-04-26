@@ -94,6 +94,67 @@ TEST(ArgumentParser, OptionThatDoesntExist)
     ASSERT_EQ(o_list, nullptr);
 }
 
+TEST(ArgumentParser, TestArgsCount)
+{
+    t_list *a_list = nullptr;
+    t_list *o_list = nullptr;
+
+    const char *argv[] = {
+        "program",
+        "--output",
+        "value",
+        "argument1",
+        "argument2",
+        NULL};
+
+    static t_argo options[] = {
+        {'v', "verbose", "verbose", "Enable verbose mode", NO_ARG},
+        {'t', "test", "test", "Display a test", NO_ARG},
+        {'o', "output", "output", "Specify output file", ONE_ARG},
+        {'i', "input", "input", "Specify input file", INF_ARG},
+        {0, nullptr, nullptr, nullptr, NO_ARG}};
+
+    static t_argp argp = {
+        .options = options,
+        .args_doc = "INPUT_FILE OUTPUT_FILE",
+        .doc = "This is a sample program to demonstrate how to use argp to parse command line arguments.",
+    };
+
+    parse_args(&argp, argv, &a_list, &o_list);
+    ASSERT_EQ(args_count(a_list), 2);
+}
+
+TEST(ArgumentParser, TestOptionsCount)
+{
+    t_list *a_list = nullptr;
+    t_list *o_list = nullptr;
+
+    const char *argv[] = {
+        "program",
+        "--output",
+        "value",
+        "argument1",
+        "--test",
+        "argument2",
+        NULL};
+
+    static t_argo options[] = {
+        {'v', "verbose", "verbose", "Enable verbose mode", NO_ARG},
+        {'t', "test", "test", "Display a test", NO_ARG},
+        {'o', "output", "output", "Specify output file", ONE_ARG},
+        {'i', "input", "input", "Specify input file", INF_ARG},
+        {0, nullptr, nullptr, nullptr, NO_ARG}};
+
+    static t_argp argp = {
+        .options = options,
+        .args_doc = "INPUT_FILE OUTPUT_FILE",
+        .doc = "This is a sample program to demonstrate how to use argp to parse command line arguments.",
+    };
+
+    parse_args(&argp, argv, &a_list, &o_list);
+    ASSERT_EQ(options_count(o_list), 2);
+}
+
 TEST(ArgumentParser, ArgumentAfterNoArgOption)
 {
     t_list *a_list = nullptr;
