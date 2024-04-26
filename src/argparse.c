@@ -229,25 +229,18 @@ void free_args(t_list *head)
  * @brief Get the next argument from the command line.
  * For example, if the options are `./program foo --test bar`,
  * the first call will return foo and the second bar.
- * @param head The structure containing the parsed arguments and options
+ * @param args_list The structure containing the parsed arguments
  * @return The structure containing the args and options
  */
-t_argr *get_next_arg(t_list **head)
+t_argr *get_next_arg(t_list **args_list)
 {
-	if (!(*head))
-		return NULL;
-
-	t_list *current = *head;
-	*head = (*head)->next;
-
-	while (current && ((t_argr *)current->content)->option)
-		current = current->next;
-
-	if (!current)
-		return NULL;
-
-	t_argr *ret = current->content;
-	return ret;
+	while ((*args_list) && ((t_argr *)(*args_list)->content)->option)
+		(*args_list) = (*args_list)->next;
+	if (!(*args_list))
+		return (NULL);
+	t_argr *ret = (*args_list)->content;
+	(*args_list) = (*args_list)->next;
+	return (ret);
 }
 
 /**
@@ -255,17 +248,17 @@ t_argr *get_next_arg(t_list **head)
  * For example, if the options are `./program --foo test --bar`,
  * the first call will return --foo and the second --bar.
  *
- * @param head The structure containing the parsed arguments and options
+ * @param options_list The structure containing the parsed options
  * @return The structure containing the args and options
  */
-t_argr *get_next_option(t_list **head)
+t_argr *get_next_option(t_list **options_list)
 {
-	while ((*head) && !((t_argr *)(*head)->content)->option)
-		(*head) = (*head)->next;
-	if (!(*head))
+	while ((*options_list) && !((t_argr *)(*options_list)->content)->option)
+		(*options_list) = (*options_list)->next;
+	if (!(*options_list))
 		return (NULL);
-	t_argr *ret = (*head)->content;
-	(*head) = (*head)->next;
+	t_argr *ret = (*options_list)->content;
+	(*options_list) = (*options_list)->next;
 	return (ret);
 }
 

@@ -179,7 +179,6 @@ TEST(ArgumentParser, ArgumentAfterNoArgOption)
     parse_args(&argp, argv, &a_list, &o_list);
     ASSERT_NE(a_list, nullptr);
     t_argr *argr;
-    // t_argo *option;
 
     argr = get_next_arg(&a_list);
     ASSERT_NE(argr, nullptr);
