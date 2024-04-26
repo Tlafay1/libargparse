@@ -50,7 +50,7 @@ typedef struct s_argp_parse
 	const char *doc;
 } t_argp;
 
-int parse_args(t_argp *argp, const char *argv[], t_list **head);
+int parse_args(t_argp *argp, const char *argv[], t_list **args_list, t_list **options_list);
 void help_args(t_argp *argp, const char *prog_name);
 t_argr *get_next_arg(t_list **head);
 t_argr *get_next_option(t_list **head);

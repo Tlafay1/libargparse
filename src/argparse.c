@@ -226,7 +226,7 @@ void free_args(t_list *head)
 }
 
 /**
- * @brief Get the next option from the command line.
+ * @brief Get the next argument from the command line.
  * For example, if the options are `./program foo --test bar`,
  * the first call will return foo and the second bar.
  * @param head The structure containing the parsed arguments and options
@@ -307,23 +307,24 @@ void help_args(t_argp *argp, const char *prog_name)
  *
  * @param argp The options expected to be passed to the program.
  * @param argv The raw argv passed inside the main().
- * @param head The structure pointer to store the args and options. To be used in helper functions.
+ * @param args_list The structure pointer to store the args. To be used in helper functions.
+ * @param options_list The structure pointer to store the options. To be used in helper functions.
  * @return Error code, 0 if everything went fine, other for error.
  * 	It's recommended to exit the program in the case an error occured.
  */
-int parse_args(t_argp *argp, const char *argv[], t_list **head)
+int parse_args(t_argp *argp, const char *argv[], t_list **args_list, t_list **options_list)
 {
 	t_argr *ret;
 
 	t_argo *options = argp->options;
 	const char *progname = argv[0];
-	*head = NULL;
+	*args_list = NULL;
 	argv++;
 	for (; *argv;)
 	{
 		if ((*argv)[0] == '-' && (*argv)[1])
 		{
-			if (_parse_option((char ***)&argv, head, options, progname, argp))
+			if (_parse_option((char ***)&argv, args_list, options, progname, argp))
 				return (1);
 		}
 		else
@@ -334,9 +335,10 @@ int parse_args(t_argp *argp, const char *argv[], t_list **head)
 			tmp[0] = (char *)*argv;
 			tmp[1] = NULL;
 			ret->values = tmp;
-			ft_lstadd_back(head, ft_lstnew(ret));
+			ft_lstadd_back(args_list, ft_lstnew(ret));
 			argv++;
 		}
 	}
+	*options_list = *args_list;
 	return (0);
 }
