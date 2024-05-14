@@ -41,7 +41,7 @@ static t_argo *_search_option(char sflag, char *lflag, t_argo *options)
 {
 	for (t_argo *option = options; option->sflag || option->lflag; option++)
 	{
-		if ((sflag && sflag == option->sflag) || (lflag && !ft_strncmp(lflag, option->lflag, ft_strlen(lflag))))
+		if ((sflag && sflag == option->sflag) || (lflag && option->lflag && !ft_strncmp(lflag, option->lflag, ft_strlen(lflag))))
 			return (option);
 	}
 	return (NULL);
