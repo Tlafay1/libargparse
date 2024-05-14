@@ -2,8 +2,7 @@
 
 TEST(ArgumentParser, SingleOption)
 {
-    t_list *a_list = nullptr;
-    t_list *o_list = nullptr;
+    t_args *args;
 
     const char *argv[] = {
         "program",
@@ -24,24 +23,23 @@ TEST(ArgumentParser, SingleOption)
         .doc = "This is a sample program to demonstrate how to use argp to parse command line arguments.",
     };
 
-    parse_args(&argp, argv, &a_list, &o_list);
-    ASSERT_NE(a_list, nullptr);
-    ASSERT_NE(o_list, nullptr);
+    parse_args(&argp, argv, &args);
 
     t_argr *argr;
 
-    argr = get_next_option(&o_list);
+    argr = get_next_option(args);
     ASSERT_NE(argr, nullptr);
 
     ASSERT_EQ(argr->option->sflag, 'o');
     ASSERT_STREQ(argr->option->lflag, "output");
     ASSERT_STREQ(argr->values[0], "value");
+
+    free_args(args);
 }
 
 TEST(ArgumentParser, SingleArgument)
 {
-    t_list *a_list = nullptr;
-    t_list *o_list = nullptr;
+    t_args *args;
 
     const char *argv[] = {
         "program",
@@ -56,21 +54,22 @@ TEST(ArgumentParser, SingleArgument)
         .doc = "This is a sample program to demonstrate how to use argp to parse command line arguments.",
     };
 
-    parse_args(&argp, argv, &a_list, &o_list);
-    ASSERT_NE(a_list, nullptr);
-    ASSERT_NE(o_list, nullptr);
+    int ret = parse_args(&argp, argv, &args);
+    ASSERT_NE(ret, 1);
+
     t_argr *argr;
 
-    argr = get_next_arg(&a_list);
+    argr = get_next_arg(args);
     ASSERT_NE(argr, nullptr);
 
     ASSERT_STREQ(argr->values[0], "argument");
+
+    free_args(args);
 }
 
 TEST(ArgumentParser, OptionThatDoesntExist)
 {
-    t_list *a_list = nullptr;
-    t_list *o_list = nullptr;
+    t_args *args;
 
     const char *argv[] = {
         "program",
@@ -87,17 +86,17 @@ TEST(ArgumentParser, OptionThatDoesntExist)
     };
 
     ::testing::internal::CaptureStdout();
-    parse_args(&argp, argv, &a_list, &o_list);
+    int ret = parse_args(&argp, argv, &args);
+    ASSERT_NE(ret, 0);
     std::string output = ::testing::internal::GetCapturedStdout();
     ASSERT_EQ(output, "program: unrecognized option '--nonexistent'\nTry 'program --help' for more information\n");
-    ASSERT_EQ(a_list, nullptr);
-    ASSERT_EQ(o_list, nullptr);
+
+    free_args(args);
 }
 
 TEST(ArgumentParser, TestArgsCount)
 {
-    t_list *a_list = nullptr;
-    t_list *o_list = nullptr;
+    t_args *args;
 
     const char *argv[] = {
         "program",
@@ -120,14 +119,16 @@ TEST(ArgumentParser, TestArgsCount)
         .doc = "This is a sample program to demonstrate how to use argp to parse command line arguments.",
     };
 
-    parse_args(&argp, argv, &a_list, &o_list);
-    ASSERT_EQ(args_count(a_list), 2);
+    int ret = parse_args(&argp, argv, &args);
+    ASSERT_EQ(ret, 0);
+    ASSERT_EQ(args_count(args), 2);
+
+    free_args(args);
 }
 
 TEST(ArgumentParser, TestOptionsCount)
 {
-    t_list *a_list = nullptr;
-    t_list *o_list = nullptr;
+    t_args *args;
 
     const char *argv[] = {
         "program",
@@ -151,14 +152,16 @@ TEST(ArgumentParser, TestOptionsCount)
         .doc = "This is a sample program to demonstrate how to use argp to parse command line arguments.",
     };
 
-    parse_args(&argp, argv, &a_list, &o_list);
-    ASSERT_EQ(options_count(o_list), 2);
+    int ret = parse_args(&argp, argv, &args);
+    ASSERT_EQ(ret, 0);
+    ASSERT_EQ(options_count(args), 2);
+
+    free_args(args);
 }
 
 TEST(ArgumentParser, ArgumentAfterNoArgOption)
 {
-    t_list *a_list = nullptr;
-    t_list *o_list = nullptr;
+    t_args *args;
 
     static t_argo options[] = {
         {'v', "verbose", "verbose", "Enable verbose mode", NO_ARG},
@@ -176,13 +179,15 @@ TEST(ArgumentParser, ArgumentAfterNoArgOption)
         "argument",
         NULL};
 
-    parse_args(&argp, argv, &a_list, &o_list);
-    ASSERT_NE(a_list, nullptr);
+    int ret = parse_args(&argp, argv, &args);
+    ASSERT_NE(ret, 1);
     t_argr *argr;
 
-    argr = get_next_arg(&a_list);
+    argr = get_next_arg(args);
     ASSERT_NE(argr, nullptr);
 
     ASSERT_STREQ(argr->values[0], "argument");
-    ASSERT_EQ(get_next_arg(&a_list), nullptr);
+    ASSERT_EQ(get_next_arg(args), nullptr);
+
+    free_args(args);
 }

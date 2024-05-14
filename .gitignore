@@ -29,3 +29,5 @@ tests/*
 !tests/*.h
 !tests/*.hpp
 .vscode
+.gdb_history
+peda-*

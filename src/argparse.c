@@ -12,6 +12,13 @@
 
 #include "argparse.h"
 
+typedef struct s_args
+{
+	t_list *args;
+	t_list *options;
+	t_list *args_original;
+} t_args;
+
 static int _unrecognized_option(char sflag, char *lflag, const char *progname, t_argp *argp)
 {
 	if (sflag == 'h' || (lflag && !ft_strncmp(lflag, "help", ft_strlen(lflag))))
@@ -172,9 +179,10 @@ static int _parse_option(char ***args, t_list **head, t_argo *options, const cha
  * @param options_list The list containing the parsed options.
  * @return The number of command line options.
  */
-int options_count(t_list *options_list)
+int options_count(t_args *args)
 {
 	int count = 0;
+	t_list *options_list = args->options;
 
 	while (options_list)
 	{
@@ -191,9 +199,10 @@ int options_count(t_list *options_list)
  * @param args_list The list containing the parsed arguments.
  * @return The number of command line arguments.
  */
-int args_count(t_list *args_list)
+int args_count(t_args *args)
 {
 	int count = 0;
+	t_list *args_list = args->args;
 
 	while (args_list)
 	{
@@ -209,11 +218,15 @@ int args_count(t_list *args_list)
  *
  * @param head The list containing the parsed arguments and options
  */
-void free_args(t_list *head)
+void free_args(t_args *args)
 {
 	t_list *tmp;
 	t_argr *argr;
 
+	if (!args)
+		return;
+
+	t_list *head = args->args_original;
 	while (head)
 	{
 		tmp = head->next;
@@ -223,6 +236,7 @@ void free_args(t_list *head)
 		free(head);
 		head = tmp;
 	}
+	free(args);
 }
 
 /**
@@ -232,8 +246,10 @@ void free_args(t_list *head)
  * @param args_list The structure containing the parsed arguments
  * @return The structure containing the args and options
  */
-t_argr *get_next_arg(t_list **args_list)
+t_argr *get_next_arg(t_args *args)
 {
+	t_list **args_list = &args->args;
+
 	while ((*args_list) && ((t_argr *)(*args_list)->content)->option)
 		(*args_list) = (*args_list)->next;
 	if (!(*args_list))
@@ -251,8 +267,10 @@ t_argr *get_next_arg(t_list **args_list)
  * @param options_list The structure containing the parsed options
  * @return The structure containing the args and options
  */
-t_argr *get_next_option(t_list **options_list)
+t_argr *get_next_option(t_args *args)
 {
+	t_list **options_list = &args->options;
+
 	while ((*options_list) && !((t_argr *)(*options_list)->content)->option)
 		(*options_list) = (*options_list)->next;
 	if (!(*options_list))
@@ -305,20 +323,23 @@ void help_args(t_argp *argp, const char *prog_name)
  * @return Error code, 0 if everything went fine, other for error.
  * 	It's recommended to exit the program in the case an error occured.
  */
-int parse_args(t_argp *argp, const char *argv[], t_list **args_list, t_list **options_list)
+int parse_args(t_argp *argp, const char *argv[], t_args **args)
 {
 	t_argr *ret;
+	t_list *args_list = NULL;
 
 	t_argo *options = argp->options;
 	const char *progname = argv[0];
-	*args_list = NULL;
 	argv++;
 	for (; *argv;)
 	{
 		if ((*argv)[0] == '-' && (*argv)[1])
 		{
-			if (_parse_option((char ***)&argv, args_list, options, progname, argp))
+			if (_parse_option((char ***)&argv, &args_list, options, progname, argp))
+			{
+				*args = NULL;
 				return (1);
+			}
 		}
 		else
 		{
@@ -328,10 +349,18 @@ int parse_args(t_argp *argp, const char *argv[], t_list **args_list, t_list **op
 			tmp[0] = (char *)*argv;
 			tmp[1] = NULL;
 			ret->values = tmp;
-			ft_lstadd_back(args_list, ft_lstnew(ret));
+			ft_lstadd_back(&args_list, ft_lstnew(ret));
 			argv++;
 		}
 	}
-	*options_list = *args_list;
+	*args = (t_args *)malloc(sizeof(t_args));
+	if (*args != NULL)
+	{
+		(*args)->args = args_list;
+		(*args)->options = args_list;
+		(*args)->args_original = args_list;
+	}
+	else
+		return (1);
 	return (0);
 }
