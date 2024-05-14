@@ -191,3 +191,181 @@ TEST(ArgumentParser, ArgumentAfterNoArgOption)
 
     free_args(args);
 }
+
+TEST(ArgumentParser, LflagNullDoesNotExist)
+{
+    t_args *args;
+
+    static t_argo options[] = {
+        {'v', NULL, "verbose", "verbose output", NO_ARG},
+        {'?', NULL, "help", "print help and exit", NO_ARG},
+        {0, nullptr, nullptr, nullptr, NO_ARG}};
+
+    static t_argp argp = {
+        .options = options,
+        .args_doc = "[options] <destination>",
+        .doc = ""};
+
+    const char *argv[] = {
+        "program",
+        "--iweufhwe",
+        NULL};
+
+    ::testing::internal::CaptureStdout();
+    int ret = parse_args(&argp, argv, &args);
+    ASSERT_NE(ret, 0);
+    std::string output = ::testing::internal::GetCapturedStdout();
+    ASSERT_EQ(output, "program: unrecognized option '--iweufhwe'\nTry 'program --help' for more information\n");
+
+    free_args(args);
+}
+
+TEST(ArgumentParser, LflagNullExistsWithLflag)
+{
+    t_args *args;
+
+    static t_argo options[] = {
+        {'v', NULL, "verbose", "verbose output", NO_ARG},
+        {'?', NULL, "help", "print help and exit", NO_ARG},
+        {0, nullptr, nullptr, nullptr, NO_ARG}};
+
+    static t_argp argp = {
+        .options = options,
+        .args_doc = "[options] <destination>",
+        .doc = ""};
+
+    const char *argv[] = {
+        "program",
+        "--verbose",
+        NULL};
+
+    ::testing::internal::CaptureStdout();
+    int ret = parse_args(&argp, argv, &args);
+    ASSERT_NE(ret, 0);
+    std::string output = ::testing::internal::GetCapturedStdout();
+    ASSERT_EQ(output, "program: unrecognized option '--verbose'\nTry 'program --help' for more information\n");
+
+    free_args(args);
+}
+
+TEST(ArgumentParser, LflagNullExistsWithSflag)
+{
+    t_args *args;
+
+    static t_argo options[] = {
+        {'v', NULL, "verbose", "verbose output", NO_ARG},
+        {'?', NULL, "help", "print help and exit", NO_ARG},
+        {0, nullptr, nullptr, nullptr, NO_ARG}};
+
+    static t_argp argp = {
+        .options = options,
+        .args_doc = "[options] <destination>",
+        .doc = ""};
+
+    const char *argv[] = {
+        "program",
+        "-v",
+        NULL};
+
+    int ret = parse_args(&argp, argv, &args);
+    ASSERT_EQ(ret, 0);
+
+    t_argr *argr;
+
+    argr = get_next_option(args);
+    ASSERT_NE(argr, nullptr);
+
+    ASSERT_EQ(argr->option->sflag, 'v');
+    ASSERT_EQ(argr->option->lflag, nullptr);
+
+    free_args(args);
+}
+
+TEST(ArgumentParser, SflagNullDoesNotExist)
+{
+    t_args *args;
+
+    static t_argo options[] = {
+        {0, "verbose", "verbose", "verbose output", NO_ARG},
+        {0, "help", "help", "print help and exit", NO_ARG},
+        {0, nullptr, nullptr, nullptr, NO_ARG}};
+
+    static t_argp argp = {
+        .options = options,
+        .args_doc = "[options] <destination>",
+        .doc = ""};
+
+    const char *argv[] = {
+        "program",
+        "-x",
+        NULL};
+
+    ::testing::internal::CaptureStdout();
+    int ret = parse_args(&argp, argv, &args);
+    ASSERT_NE(ret, 0);
+    std::string output = ::testing::internal::GetCapturedStdout();
+    ASSERT_EQ(output, "program: invalid option -- 'x'\nTry 'program --help' for more information\n");
+
+    free_args(args);
+}
+
+TEST(ArgumentParser, SflagNullExistsWithLflag)
+{
+    t_args *args;
+
+    static t_argo options[] = {
+        {0, "verbose", "verbose", "verbose output", NO_ARG},
+        {0, "help", "help", "print help and exit", NO_ARG},
+        {0, nullptr, nullptr, nullptr, NO_ARG}};
+
+    static t_argp argp = {
+        .options = options,
+        .args_doc = "[options] <destination>",
+        .doc = ""};
+
+    const char *argv[] = {
+        "program",
+        "--verbose",
+        NULL};
+
+    int ret = parse_args(&argp, argv, &args);
+    ASSERT_EQ(ret, 0);
+
+    t_argr *argr;
+
+    argr = get_next_option(args);
+    ASSERT_NE(argr, nullptr);
+
+    ASSERT_EQ(argr->option->sflag, 0);
+    ASSERT_STREQ(argr->option->lflag, "verbose");
+
+    free_args(args);
+}
+
+TEST(ArgumentParser, SflagNullExistsWithSflag)
+{
+    t_args *args;
+
+    static t_argo options[] = {
+        {0, "verbose", "verbose", "verbose output", NO_ARG},
+        {0, "help", "help", "print help and exit", NO_ARG},
+        {0, nullptr, nullptr, nullptr, NO_ARG}};
+
+    static t_argp argp = {
+        .options = options,
+        .args_doc = "[options] <destination>",
+        .doc = ""};
+
+    const char *argv[] = {
+        "program",
+        "-v",
+        NULL};
+
+    ::testing::internal::CaptureStdout();
+    int ret = parse_args(&argp, argv, &args);
+    ASSERT_NE(ret, 0);
+    std::string output = ::testing::internal::GetCapturedStdout();
+    ASSERT_EQ(output, "program: invalid option -- 'v'\nTry 'program --help' for more information\n");
+
+    free_args(args);
+}
