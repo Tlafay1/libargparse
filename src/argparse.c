@@ -12,6 +12,13 @@
 
 #include "argparse.h"
 
+typedef struct s_args
+{
+	t_list *args;
+	t_list *options;
+	t_list *args_original;
+} t_args;
+
 static int _unrecognized_option(char sflag, char *lflag, const char *progname, t_argp *argp)
 {
 	if (sflag == 'h' || (lflag && !ft_strncmp(lflag, "help", ft_strlen(lflag))))
@@ -216,6 +223,9 @@ void free_args(t_args *args)
 	t_list *tmp;
 	t_argr *argr;
 
+	if (!args)
+		return;
+
 	t_list *head = args->args_original;
 	while (head)
 	{
@@ -226,19 +236,7 @@ void free_args(t_args *args)
 		free(head);
 		head = tmp;
 	}
-
-	head = args->options_original;
-	while (head)
-	{
-		tmp = head->next;
-		argr = head->content;
-		printf("argr %p\n", argr);
-		printf("freeing values %p\n", argr->values);
-		free(argr->values);
-		free(argr);
-		free(head);
-		head = tmp;
-	}
+	free(args);
 }
 
 /**
@@ -338,7 +336,10 @@ int parse_args(t_argp *argp, const char *argv[], t_args **args)
 		if ((*argv)[0] == '-' && (*argv)[1])
 		{
 			if (_parse_option((char ***)&argv, &args_list, options, progname, argp))
+			{
+				*args = NULL;
 				return (1);
+			}
 		}
 		else
 		{
@@ -358,7 +359,6 @@ int parse_args(t_argp *argp, const char *argv[], t_args **args)
 		(*args)->args = args_list;
 		(*args)->options = args_list;
 		(*args)->args_original = args_list;
-		(*args)->options_original = args_list;
 	}
 	else
 		return (1);

@@ -24,10 +24,6 @@ TEST(ArgumentParser, SingleOption)
     };
 
     parse_args(&argp, argv, &args);
-    ASSERT_NE(args->args, nullptr);
-    ASSERT_NE(args->options, nullptr);
-    ASSERT_NE(args->args_original, nullptr);
-    ASSERT_NE(args->options_original, nullptr);
 
     t_argr *argr;
 
@@ -60,10 +56,6 @@ TEST(ArgumentParser, SingleArgument)
 
     int ret = parse_args(&argp, argv, &args);
     ASSERT_NE(ret, 1);
-    ASSERT_NE(args->args, nullptr);
-    ASSERT_NE(args->options, nullptr);
-    ASSERT_NE(args->args_original, nullptr);
-    ASSERT_NE(args->options_original, nullptr);
 
     t_argr *argr;
 
@@ -199,11 +191,3 @@ TEST(ArgumentParser, ArgumentAfterNoArgOption)
 
     free_args(args);
 }
-
-// TEST(ArgumentParser, FreeArgsIfListIsNull)
-// {
-//     t_args *args = nullptr;
-//     free_args(args);
-//     free_args(a_list);
-//     ASSERT_EQ(a_list, nullptr);
-// }
