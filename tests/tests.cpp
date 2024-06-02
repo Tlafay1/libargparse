@@ -497,3 +497,38 @@ TEST(ArgumentParse, LflagWithEqualNoArgsEmptyValue)
 
     free_args(args);
 }
+
+TEST(ArgumentParse, NegativeNumberInsteadOfSflag)
+{
+    t_args *args;
+
+    static t_argo options[] = {
+        {'v', "verbose", "verbose", "verbose output", NO_ARG},
+        {'s', "size", "size", "size of the file", ONE_ARG},
+        {'?', "help", "help", "print help and exit", NO_ARG},
+        {0, nullptr, nullptr, nullptr, NO_ARG}};
+
+    static t_argp argp = {
+        .options = options,
+        .args_doc = "[options] <destination>",
+        .doc = ""};
+
+    const char *argv[] = {
+        "program",
+        "-s",
+        "-10",
+        NULL};
+
+    int ret = parse_args(&argp, argv, &args);
+    ASSERT_EQ(ret, 0);
+
+    t_argr *argr;
+
+    argr = get_next_option(args);
+    ASSERT_NE(argr, nullptr);
+
+    ASSERT_STREQ(argr->option->lflag, "size");
+    ASSERT_STREQ(argr->values[0], "-10");
+
+    free_args(args);
+}
