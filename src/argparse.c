@@ -61,23 +61,28 @@ static int _wrong_arguments_number(t_argo *option, int flagtype, const char *pro
 {
 	char *message;
 
-	if (option->argnum == ONE_ARG)
-		message = "an";
+	if (option->argnum == NO_ARG && flagtype == LFLAG)
+		printf("%s: option '%s' doesn't allow an argument\n", progname, option->lflag);
 	else
-		message = "at least one";
+	{
+		if (option->argnum == ONE_ARG)
+			message = "an";
+		else
+			message = "at least one";
 
-	if (flagtype == SFLAG)
-		printf("%s: option requires %s argument -- '%c'\n", progname, message, option->sflag);
+		if (flagtype == SFLAG)
+			printf("%s: option requires %s argument -- '%c'\n", progname, message, option->sflag);
 
-	else
-		printf("%s: option '%s' requires %s argument\n", progname, option->lflag, message);
+		else
+			printf("%s: option '%s' requires %s argument\n", progname, option->lflag, message);
+	}
 
 	printf("Try '%s --help' for more information\n", progname);
 
 	return (1);
 }
 
-static int _get_option_arguments(char ***args, t_argo *option,
+static int _get_option_arguments(char *const **args, t_argo *option,
 								 char ***values, int flagtype, const char *progname)
 {
 	char **values_cp = *values;
@@ -115,7 +120,25 @@ static int _get_option_arguments(char ***args, t_argo *option,
 	return (0);
 }
 
-static int _parse_short_option(char ***args, t_list **head, t_argo *options, const char *progname, t_argp *argp)
+static int _get_lflag_equal_argument(char const *arg, t_argo *option, char ***values, int flagtype, const char *progname)
+{
+	char **values_cp = *values;
+
+	if (option->argnum == NO_ARG || !arg || !arg[0])
+		return (_wrong_arguments_number(option, flagtype, progname));
+
+	else
+	{
+		values_cp = (char **)malloc(2 * sizeof(char *));
+		values_cp[0] = (char *)arg;
+		values_cp[1] = NULL;
+	}
+
+	*values = values_cp;
+	return (0);
+}
+
+static int _parse_short_option(char *const **args, t_list **head, t_argo *options, const char *progname, t_argp *argp)
 {
 	t_argo *option;
 	t_argr *ret;
@@ -142,31 +165,67 @@ static int _parse_short_option(char ***args, t_list **head, t_argo *options, con
 	return (0);
 }
 
-static int _parse_long_option(char ***args, t_list **head, t_argo *options, const char *progname, t_argp *argp)
+static void _free_split_array(char **split)
 {
-	t_argo *option;
-	t_argr *ret;
+	if (split)
+	{
+		for (char **ptr = split; *ptr; ptr++)
+		{
+			free(*ptr);
+		}
+		free(split);
+	}
+}
 
+static int _parse_long_option(char *const **args, t_list **head, t_argo *options, const char *progname, t_argp *argp)
+{
 	char *arg = (*args)[0] + 2;
 	(*args)++;
 
-	ret = (t_argr *)malloc(sizeof(t_argr));
-	option = _search_option(0, arg, options);
+	char const *equal = ft_strchr(arg, '=');
+	if (equal)
+	{
+		equal++;
+		char **split = ft_split(arg, '=');
+		t_argo *option = _search_option(0, split[0], options);
+
+		_free_split_array(split);
+
+		if (!option)
+			return (_unrecognized_option(0, arg, progname, argp));
+
+		t_argr *ret = (t_argr *)malloc(sizeof(t_argr));
+
+		if (_get_lflag_equal_argument(equal, option, &(ret->values), LFLAG, progname))
+		{
+			free(ret);
+			return (1);
+		}
+		ret->option = option;
+		ft_lstadd_back(head, ft_lstnew(ret));
+
+		return (0);
+	}
+
+	t_argo *option = _search_option(0, arg, options);
 
 	if (!option)
+		return (_unrecognized_option(0, arg, progname, argp));
+
+	t_argr *ret = (t_argr *)malloc(sizeof(t_argr));
+
+	if (_get_option_arguments(args, option, &(ret->values), LFLAG, progname))
 	{
 		free(ret);
-		return (_unrecognized_option(0, arg, progname, argp));
-	}
-	if (_get_option_arguments(args, option, &(ret->values), LFLAG, progname))
 		return (1);
+	}
 	ret->option = option;
 	ft_lstadd_back(head, ft_lstnew(ret));
 
 	return (0);
 }
 
-static int _parse_option(char ***args, t_list **head, t_argo *options, const char *progname, t_argp *argp)
+static int _parse_option(char *const **args, t_list **head, t_argo *options, const char *progname, t_argp *argp)
 {
 	if (*(args[0][0] + 1) == '-')
 		return _parse_long_option(args, head, options, progname, argp);
@@ -335,7 +394,7 @@ int parse_args(t_argp *argp, const char *argv[], t_args **args)
 	{
 		if ((*argv)[0] == '-' && (*argv)[1])
 		{
-			if (_parse_option((char ***)&argv, &args_list, options, progname, argp))
+			if (_parse_option((char *const **)&argv, &args_list, options, progname, argp))
 			{
 				*args = NULL;
 				return (1);
