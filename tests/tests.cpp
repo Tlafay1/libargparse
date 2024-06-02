@@ -369,3 +369,131 @@ TEST(ArgumentParser, SflagNullExistsWithSflag)
 
     free_args(args);
 }
+
+TEST(ArgumentParser, LflagwithEqualOneArg)
+{
+    t_args *args;
+
+    static t_argo options[] = {
+        {'v', "verbose", "verbose", "verbose output", NO_ARG},
+        {'s', "size", "size", "size", ONE_ARG},
+        {'?', "help", "help", "print help and exit", NO_ARG},
+        {0, nullptr, nullptr, nullptr, NO_ARG}};
+
+    static t_argp argp = {
+        .options = options,
+        .args_doc = "[options] <destination>",
+        .doc = ""};
+
+    const char *argv[] = {
+        "program",
+        "--size=10",
+        NULL};
+
+    int ret = parse_args(&argp, argv, &args);
+    ASSERT_EQ(ret, 0);
+
+    t_argr *argr;
+
+    argr = get_next_option(args);
+    ASSERT_NE(argr, nullptr);
+
+    ASSERT_STREQ(argr->option->lflag, "size");
+
+    ASSERT_STREQ(argr->values[0], "10");
+
+    free_args(args);
+}
+
+TEST(ArgumentParser, LflagwithEqualInfArg)
+{
+    t_args *args;
+
+    static t_argo options[] = {
+        {'v', "verbose", "verbose", "verbose output", NO_ARG},
+        {'s', "size", "size", "size", INF_ARG},
+        {'?', "help", "help", "print help and exit", NO_ARG},
+        {0, nullptr, nullptr, nullptr, NO_ARG}};
+
+    static t_argp argp = {
+        .options = options,
+        .args_doc = "[options] <destination>",
+        .doc = ""};
+
+    const char *argv[] = {
+        "program",
+        "--size=10",
+        NULL};
+
+    int ret = parse_args(&argp, argv, &args);
+    ASSERT_EQ(ret, 0);
+
+    t_argr *argr;
+
+    argr = get_next_option(args);
+    ASSERT_NE(argr, nullptr);
+
+    ASSERT_STREQ(argr->option->lflag, "size");
+
+    ASSERT_STREQ(argr->values[0], "10");
+
+    free_args(args);
+}
+
+TEST(ArgumentParse, LflagWithEqualNoArgs)
+{
+    t_args *args;
+
+    static t_argo options[] = {
+        {'v', "verbose", "verbose", "verbose output", NO_ARG},
+        {'s', "size", "size", "size of the file", NO_ARG},
+        {'?', "help", "help", "print help and exit", NO_ARG},
+        {0, nullptr, nullptr, nullptr, NO_ARG}};
+
+    static t_argp argp = {
+        .options = options,
+        .args_doc = "[options] <destination>",
+        .doc = ""};
+
+    const char *argv[] = {
+        "program",
+        "--size=12",
+        NULL};
+
+    ::testing::internal::CaptureStdout();
+    int ret = parse_args(&argp, argv, &args);
+    ASSERT_NE(ret, 0);
+    std::string output = ::testing::internal::GetCapturedStdout();
+    ASSERT_EQ(output, "program: option 'size' doesn't allow an argument\nTry 'program --help' for more information\n");
+
+    free_args(args);
+}
+
+TEST(ArgumentParse, LflagWithEqualNoArgsEmptyValue)
+{
+    t_args *args;
+
+    static t_argo options[] = {
+        {'v', "verbose", "verbose", "verbose output", NO_ARG},
+        {'s', "size", "size", "size of the file", NO_ARG},
+        {'?', "help", "help", "print help and exit", NO_ARG},
+        {0, nullptr, nullptr, nullptr, NO_ARG}};
+
+    static t_argp argp = {
+        .options = options,
+        .args_doc = "[options] <destination>",
+        .doc = ""};
+
+    const char *argv[] = {
+        "program",
+        "--size=",
+        NULL};
+
+    ::testing::internal::CaptureStdout();
+    int ret = parse_args(&argp, argv, &args);
+    ASSERT_NE(ret, 0);
+    std::string output = ::testing::internal::GetCapturedStdout();
+    ASSERT_EQ(output, "program: option 'size' doesn't allow an argument\nTry 'program --help' for more information\n");
+
+    free_args(args);
+}
