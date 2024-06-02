@@ -92,7 +92,7 @@ static int _get_option_arguments(char *const **args, t_argo *option,
 
 	else if (option->argnum == ONE_ARG)
 	{
-		if (!*args || *args[0][0] == '-')
+		if (!*args || ((*args)[0][0] == '-' && !ft_isdigit((*args)[0][1])))
 			return (_wrong_arguments_number(option, flagtype, progname));
 		values_cp = (char **)malloc(2 * sizeof(char *));
 		values_cp[0] = **args;
@@ -105,7 +105,7 @@ static int _get_option_arguments(char *const **args, t_argo *option,
 		if (!**args)
 			return (_wrong_arguments_number(option, flagtype, progname));
 		int i = 0;
-		for (; (*args)[i] && (ft_strlen((*args)[i]) <= 1 || (*args)[i][0] != '-'); i++)
+		for (; (*args)[i] && (ft_strlen((*args)[i]) <= 1 || ((*args)[i][0] != '-' && !ft_isdigit((*args)[i][1]))); i++)
 			;
 		if (!i)
 			return (_wrong_arguments_number(option, flagtype, progname));
@@ -229,7 +229,9 @@ static int _parse_option(char *const **args, t_list **head, t_argo *options, con
 {
 	if (*(args[0][0] + 1) == '-')
 		return _parse_long_option(args, head, options, progname, argp);
-	return _parse_short_option(args, head, options, progname, argp);
+	if (!ft_isdigit(*(args[0][0] + 1)))
+		return _parse_short_option(args, head, options, progname, argp);
+	return (0);
 }
 
 /**
