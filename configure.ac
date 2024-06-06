@@ -6,7 +6,11 @@ echo $VERSION
 
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
 
+# : ${CFLAGS=""}
+# : ${CXXFLAGS=""}
+
 AC_PROG_RANLIB
+AC_PROG_CC
 AC_PROG_CXX
 AM_PROG_AR
 
