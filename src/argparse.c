@@ -157,7 +157,10 @@ static int _parse_short_option(char *const **args, t_list **head, t_argo *option
 			return (_unrecognized_option(*arg, NULL, progname, argp));
 		}
 		if (_get_option_arguments(args, option, &(ret->values), SFLAG, progname))
+		{
+			free(ret);
 			return (1);
+		}
 		ret->option = option;
 		ft_lstadd_back(head, ft_lstnew(ret));
 	}
@@ -274,6 +277,22 @@ int args_count(t_args *args)
 	return (count);
 }
 
+void _free_list(t_list *list)
+{
+	t_list *tmp;
+	t_argr *argr;
+
+	while (list)
+	{
+		tmp = list->next;
+		argr = list->content;
+		free(argr->values);
+		free(argr);
+		free(list);
+		list = tmp;
+	}
+}
+
 /**
  * @brief Free the structure when you are done using it.
  *
@@ -281,22 +300,10 @@ int args_count(t_args *args)
  */
 void free_args(t_args *args)
 {
-	t_list *tmp;
-	t_argr *argr;
-
 	if (!args)
 		return;
 
-	t_list *head = args->args_original;
-	while (head)
-	{
-		tmp = head->next;
-		argr = head->content;
-		free(argr->values);
-		free(argr);
-		free(head);
-		head = tmp;
-	}
+	_free_list(args->args_original);
 	free(args);
 }
 
@@ -398,7 +405,7 @@ int parse_args(t_argp *argp, const char *argv[], t_args **args)
 		{
 			if (_parse_option((char *const **)&argv, &args_list, options, progname, argp))
 			{
-				*args = NULL;
+				_free_list(args_list);
 				return (1);
 			}
 		}

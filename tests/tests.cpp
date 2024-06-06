@@ -90,8 +90,6 @@ TEST(ArgumentParser, OptionThatDoesntExist)
     ASSERT_NE(ret, 0);
     std::string output = ::testing::internal::GetCapturedStdout();
     ASSERT_EQ(output, "program: unrecognized option '--nonexistent'\nTry 'program --help' for more information\n");
-
-    free_args(args);
 }
 
 TEST(ArgumentParser, TestArgsCount)
@@ -180,7 +178,7 @@ TEST(ArgumentParser, ArgumentAfterNoArgOption)
         NULL};
 
     int ret = parse_args(&argp, argv, &args);
-    ASSERT_NE(ret, 1);
+    ASSERT_EQ(ret, 0);
     t_argr *argr;
 
     argr = get_next_arg(args);
@@ -216,8 +214,6 @@ TEST(ArgumentParser, LflagNullDoesNotExist)
     ASSERT_NE(ret, 0);
     std::string output = ::testing::internal::GetCapturedStdout();
     ASSERT_EQ(output, "program: unrecognized option '--iweufhwe'\nTry 'program --help' for more information\n");
-
-    free_args(args);
 }
 
 TEST(ArgumentParser, LflagNullExistsWithLflag)
@@ -244,8 +240,6 @@ TEST(ArgumentParser, LflagNullExistsWithLflag)
     ASSERT_NE(ret, 0);
     std::string output = ::testing::internal::GetCapturedStdout();
     ASSERT_EQ(output, "program: unrecognized option '--verbose'\nTry 'program --help' for more information\n");
-
-    free_args(args);
 }
 
 TEST(ArgumentParser, LflagNullExistsWithSflag)
@@ -305,8 +299,6 @@ TEST(ArgumentParser, SflagNullDoesNotExist)
     ASSERT_NE(ret, 0);
     std::string output = ::testing::internal::GetCapturedStdout();
     ASSERT_EQ(output, "program: invalid option -- 'x'\nTry 'program --help' for more information\n");
-
-    free_args(args);
 }
 
 TEST(ArgumentParser, SflagNullExistsWithLflag)
@@ -366,8 +358,6 @@ TEST(ArgumentParser, SflagNullExistsWithSflag)
     ASSERT_NE(ret, 0);
     std::string output = ::testing::internal::GetCapturedStdout();
     ASSERT_EQ(output, "program: invalid option -- 'v'\nTry 'program --help' for more information\n");
-
-    free_args(args);
 }
 
 TEST(ArgumentParser, LflagwithEqualOneArg)
@@ -465,8 +455,6 @@ TEST(ArgumentParse, LflagWithEqualNoArgs)
     ASSERT_NE(ret, 0);
     std::string output = ::testing::internal::GetCapturedStdout();
     ASSERT_EQ(output, "program: option 'size' doesn't allow an argument\nTry 'program --help' for more information\n");
-
-    free_args(args);
 }
 
 TEST(ArgumentParse, LflagWithEqualNoArgsEmptyValue)
@@ -494,8 +482,6 @@ TEST(ArgumentParse, LflagWithEqualNoArgsEmptyValue)
     ASSERT_NE(ret, 0);
     std::string output = ::testing::internal::GetCapturedStdout();
     ASSERT_EQ(output, "program: option 'size' doesn't allow an argument\nTry 'program --help' for more information\n");
-
-    free_args(args);
 }
 
 TEST(ArgumentParse, NegativeNumberInsteadOfSflag)
@@ -531,4 +517,98 @@ TEST(ArgumentParse, NegativeNumberInsteadOfSflag)
     ASSERT_STREQ(argr->values[0], "-10");
 
     free_args(args);
+}
+
+TEST(LeaksCheck, InvalidSflag)
+{
+    t_args *args;
+
+    static t_argo options[] = {
+        {'c', "count", "count", "stop after <count> replies", ONE_ARG},
+        {'i', "interval", "interval", "wait NUMBER seconds between sending each packet", ONE_ARG},
+        {'q', "quiet", "quiet", "quiet output", NO_ARG},
+        {'s', "size", "data size", "use <size> as number of data bytes to be sent", ONE_ARG},
+        {'t', "ttl", "time to live", "define time to live", ONE_ARG},
+        {'v', "verbose", "verbose", "verbose output", NO_ARG},
+        {'?', "help", "help", "print help and exit", NO_ARG},
+        {0, NULL, NULL, NULL, NO_ARG}};
+
+    static t_argp argp = {
+        .options = options,
+        .args_doc = "[options] <destination>",
+        .doc = ""};
+
+    const char *argv[] = {
+        "./program",
+        "-va",
+        NULL};
+
+    ::testing::internal::CaptureStdout();
+    int ret = parse_args(&argp, argv, &args);
+    ::testing::internal::GetCapturedStdout();
+    ASSERT_NE(ret, 0);
+}
+
+TEST(LeaksCheck, InvalidLflag)
+{
+    t_args *args;
+
+    static t_argo options[] = {
+        {'c', "count", "count", "stop after <count> replies", ONE_ARG},
+        {'i', "interval", "interval", "wait NUMBER seconds between sending each packet", ONE_ARG},
+        {'q', "quiet", "quiet", "quiet output", NO_ARG},
+        {'s', "size", "data size", "use <size> as number of data bytes to be sent", ONE_ARG},
+        {'t', "ttl", "time to live", "define time to live", ONE_ARG},
+        {'v', "verbose", "verbose", "verbose output", NO_ARG},
+        {'?', "help", "help", "print help and exit", NO_ARG},
+        {0, NULL, NULL, NULL, NO_ARG}};
+
+    static t_argp argp = {
+        .options = options,
+        .args_doc = "[options] <destination>",
+        .doc = ""};
+
+    const char *argv[] = {
+        "./program",
+        "--verbosea",
+        NULL};
+
+    ::testing::internal::CaptureStdout();
+    int ret = parse_args(&argp, argv, &args);
+    ::testing::internal::GetCapturedStdout();
+    ASSERT_NE(ret, 0);
+}
+
+TEST(LeaksCheck, PingTest)
+{
+    t_args *args;
+
+    static t_argo options[] = {
+        {'c', "count", "count", "stop after <count> replies", ONE_ARG},
+        {'i', "interval", "interval", "wait NUMBER seconds between sending each packet", ONE_ARG},
+        {'q', "quiet", "quiet", "quiet output", NO_ARG},
+        {'s', "size", "data size", "use <size> as number of data bytes to be sent", ONE_ARG},
+        {'t', "ttl", "time to live", "define time to live", ONE_ARG},
+        {'v', "verbose", "verbose", "verbose output", NO_ARG},
+        {'?', "help", "help", "print help and exit", NO_ARG},
+        {0, NULL, NULL, NULL, NO_ARG}};
+
+    static t_argp argp = {
+        .options = options,
+        .args_doc = "[options] <destination>",
+        .doc = ""};
+
+    const char *argv[] = {
+        "./program",
+        "localhost",
+        "-c",
+        "4",
+        "-va",
+        "--size=64",
+        NULL};
+
+    ::testing::internal::CaptureStdout();
+    int ret = parse_args(&argp, argv, &args);
+    ::testing::internal::GetCapturedStdout();
+    ASSERT_NE(ret, 0);
 }
