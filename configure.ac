@@ -2,12 +2,7 @@ AC_PREREQ([2.69])
 
 AC_INIT([libargparse], m4_esyscmd([echo -n $VERSION]), [tlafay@student.42lyon.fr])
 
-echo $VERSION
-
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
-
-# : ${CFLAGS=""}
-# : ${CXXFLAGS=""}
 
 AC_PROG_RANLIB
 AC_PROG_CC

@@ -430,7 +430,7 @@ TEST(ArgumentParser, LflagwithEqualInfArg)
     free_args(args);
 }
 
-TEST(ArgumentParse, LflagWithEqualNoArgs)
+TEST(ArgumentParser, LflagWithEqualNoArgs)
 {
     t_args *args;
 
@@ -457,7 +457,7 @@ TEST(ArgumentParse, LflagWithEqualNoArgs)
     ASSERT_EQ(output, "program: option 'size' doesn't allow an argument\nTry 'program --help' for more information\n");
 }
 
-TEST(ArgumentParse, LflagWithEqualNoArgsEmptyValue)
+TEST(ArgumentParser, LflagWithEqualNoArgsEmptyValue)
 {
     t_args *args;
 
@@ -484,7 +484,7 @@ TEST(ArgumentParse, LflagWithEqualNoArgsEmptyValue)
     ASSERT_EQ(output, "program: option 'size' doesn't allow an argument\nTry 'program --help' for more information\n");
 }
 
-TEST(ArgumentParse, NegativeNumberInsteadOfSflag)
+TEST(ArgumentParser, NegativeNumberInsteadOfSflag)
 {
     t_args *args;
 
@@ -517,6 +517,50 @@ TEST(ArgumentParse, NegativeNumberInsteadOfSflag)
     ASSERT_STREQ(argr->values[0], "-10");
 
     free_args(args);
+}
+
+TEST(ArgumentParser, SflagWithOneArgNotProvided)
+{
+    t_args *args;
+
+    static t_argo options[] = {
+        {'s', "size", "size", "size of the file", ONE_ARG},
+        {0, nullptr, nullptr, nullptr, NO_ARG}};
+
+    static t_argp argp = {
+        .options = options,
+        .args_doc = "[options] <destination>",
+        .doc = ""};
+
+    const char *argv[] = {
+        "program",
+        "-s",
+        NULL};
+
+    int ret = parse_args(&argp, argv, &args);
+    ASSERT_NE(ret, 0);
+}
+
+TEST(ArgumentParser, LflagWithOneArgNotProvided)
+{
+    t_args *args;
+
+    static t_argo options[] = {
+        {'s', "size", "size", "size of the file", ONE_ARG},
+        {0, nullptr, nullptr, nullptr, NO_ARG}};
+
+    static t_argp argp = {
+        .options = options,
+        .args_doc = "[options] <destination>",
+        .doc = ""};
+
+    const char *argv[] = {
+        "program",
+        "--size",
+        NULL};
+
+    int ret = parse_args(&argp, argv, &args);
+    ASSERT_NE(ret, 0);
 }
 
 TEST(LeaksCheck, InvalidSflag)

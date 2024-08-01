@@ -92,7 +92,7 @@ static int _get_option_arguments(char *const **args, t_argo *option,
 
 	else if (option->argnum == ONE_ARG)
 	{
-		if (!*args || ((*args)[0][0] == '-' && !ft_isdigit((*args)[0][1])))
+		if (!*args || !(*args)[0] || ((*args)[0][0] == '-' && !ft_isdigit((*args)[0][1])))
 			return (_wrong_arguments_number(option, flagtype, progname));
 		values_cp = (char **)malloc(2 * sizeof(char *));
 		values_cp[0] = **args;
